@@ -5,7 +5,7 @@ import App from './App'
 import router from './router'
 import {
   Button,Input,Form,FormItem,Container,Header,Aside,Main,Menu,Submenu,MenuItemGroup,MenuItem,Breadcrumb,BreadcrumbItem,Card
-,Row,Col,Table,TableColumn,Switch} from 'element-ui';
+,Row,Col,Table,TableColumn,Switch,Tooltip,Pagination,Dialog} from 'element-ui';
 import {Message} from 'element-ui'
 //的导入字体图标
 import './assets/fonts/iconfont.css'
@@ -46,7 +46,9 @@ Vue.use(Col);
 Vue.use(Table);
 Vue.use(TableColumn);
 Vue.use(Switch);
-
+Vue.use(Tooltip);
+Vue.use(Pagination);
+Vue.use(Dialog);
 Vue.config.productionTip = false;
 
 /* eslint-disable no-new */
