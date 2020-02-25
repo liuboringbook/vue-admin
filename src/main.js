@@ -6,7 +6,7 @@ import router from './router'
 import {
   Button,Input,Form,FormItem,Container,Header,Aside,Main,Menu,Submenu,MenuItemGroup,MenuItem,Breadcrumb,BreadcrumbItem,Card
 ,Row,Col,Table,TableColumn,Switch,Tooltip,Pagination,Dialog} from 'element-ui';
-import {Message} from 'element-ui'
+import {Message,MessageBox} from 'element-ui'
 //的导入字体图标
 import './assets/fonts/iconfont.css'
 //引入全局样式
@@ -25,6 +25,7 @@ Vue.prototype.$http =axios;
 
 //导入element-ui中的message组件
 Vue.prototype.$message =Message;
+Vue.prototype.$confirm = MessageBox.confirm;
 
 Vue.use(Button);
 Vue.use(Input);
