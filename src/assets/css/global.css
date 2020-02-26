@@ -3,6 +3,8 @@ html,body,#app{
   height:100%;
   margin:0;
   padding:0;
+  min-width:1366px;
+  /*处理如果屏幕宽度不足1366px 换行问题*/
 }
 
 .el-breadcrumb{
