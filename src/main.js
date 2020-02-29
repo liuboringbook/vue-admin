@@ -5,7 +5,7 @@ import App from './App'
 import router from './router'
 import {
   Button,Input,Form,FormItem,Container,Header,Aside,Main,Menu,Submenu,MenuItemGroup,MenuItem,Breadcrumb,BreadcrumbItem,Card
-,Row,Col,Table,TableColumn,Switch,Tooltip,Pagination,Dialog,Tag,Tree,Select,Option} from 'element-ui';
+,Row,Col,Table,TableColumn,Switch,Tooltip,Pagination,Dialog,Tag,Tree,Select,Option,Cascader} from 'element-ui';
 import {Message,MessageBox} from 'element-ui'
 //的导入字体图标
 import './assets/fonts/iconfont.css'
@@ -13,6 +13,7 @@ import './assets/fonts/iconfont.css'
 import  './assets/css/global.css'
 
 import axios from 'axios'
+import TreeTable from 'vue-table-with-tree-grid'
 
 //配置请求的根路径
 
@@ -26,6 +27,9 @@ Vue.prototype.$http =axios;
 //导入element-ui中的message组件
 Vue.prototype.$message =Message;
 Vue.prototype.$confirm = MessageBox.confirm;
+
+//导入表格树形
+Vue.component('tree-table',TreeTable);
 
 Vue.use(Button);
 Vue.use(Input);
@@ -54,6 +58,7 @@ Vue.use(Tag);
 Vue.use(Tree);
 Vue.use(Select);
 Vue.use(Option);
+Vue.use(Cascader);
 Vue.config.productionTip = false;
 
 /* eslint-disable no-new */
