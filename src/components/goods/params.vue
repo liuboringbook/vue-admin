@@ -35,7 +35,7 @@
             <!-- 展开行-->
             <el-table-column type="expand">
               <template slot-scope="scope">
-                <el-tag v-for="(item,i) in scope.row.attr_vals" :keys="i" closable @close="handleClose(i,scope.row)">{{item}}</el-tag>
+                <el-tag v-for="(item,i) in scope.row.attr_vals" :key="i" closable @close="handleClose(i,scope.row)">{{item}}</el-tag>
                 <el-input
                   class="input-new-tag"
                   v-if="scope.row.inputVisible"
@@ -66,7 +66,7 @@
             <!-- 展开行-->
             <el-table-column type="expand">
               <template slot-scope="scope">
-                <el-tag v-for="(item,i) in scope.row.attr_vals" :keys="i" closable  @close="handleClose(i,scope.row)">{{item}}</el-tag>
+                <el-tag v-for="(item,i) in scope.row.attr_vals" :key="i" closable  @close="handleClose(i,scope.row)">{{item}}</el-tag>
                 <el-input
                   class="input-new-tag"
                   v-if="scope.row.inputVisible"

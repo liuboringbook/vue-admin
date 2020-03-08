@@ -29,15 +29,17 @@
             <el-form-item label="商品名称" prop="goods_name">
             <el-input v-model="addForm.goods_name"></el-input>
           </el-form-item>
-            <el-form-item label="商品价格" prop="goods_price" type="number">
-              <el-input v-model="addForm.goods_price"></el-input>
+            <el-form-item label="商品价格" prop="goods_price">
+              <el-input v-model.number="addForm.goods_price" type="number"></el-input>
             </el-form-item>
             <el-form-item label="商品重量" prop="goods_weight">
-              <el-input v-model="addForm.goods_weight"></el-input>
+              <el-input v-model.number="addForm.goods_weight" type="number"></el-input>
             </el-form-item>
-            <el-form-item label="商品数量" prop="goods_number" type="number">
-              <el-input v-model="addForm.goods_number"></el-input>
+            <el-form-item label="商品数量" prop="goods_number">
+              <el-input v-model.number="addForm.goods_number" type="number"></el-input>
             </el-form-item>
+
+
             <el-form-item label="商品分类" prop="goods_cat">
               <el-cascader
                 v-model="addForm.goods_cat"
@@ -48,14 +50,14 @@
           </el-tab-pane>
           <el-tab-pane label="商品参数" name="1">
             <!--渲染表单的Item项-->
-            <el-form-item :label="item.attr_name" v-for="item in manyTabData" :key="item.attr_id">
+            <el-form-item :label="item.attr_name" v-for="item in manyTableData" :key="item.attr_id">
               <el-checkbox-group v-model="item.attr_vals" >
                 <el-checkbox :label="cb" v-for="(cb,i) in item.attr_vals" :key="i" border></el-checkbox>
               </el-checkbox-group>
             </el-form-item>
           </el-tab-pane>
           <el-tab-pane label="商品属性" name="2" >
-            <el-form-item v-for="item in onlyTabData" :key="item.attr_id" :label="item.attr_name">
+            <el-form-item v-for="item in onlyTableData" :key="item.attr_id" :label="item.attr_name">
               <el-input v-model="item.attr_vals"></el-input>
             </el-form-item>
           </el-tab-pane>
@@ -65,29 +67,48 @@
               action="http://127.0.0.1:8888/api/private/v1/upload"
               :on-preview="handlePreview"
               :on-remove="handleRemove"
-              :file-list="fileList"
-              list-type="picture">
+              list-type="picture"
+              :headers="headerObj"
+              :on-success="handleSuccess">
               <el-button size="small" type="primary">点击上传</el-button>
             </el-upload>
 
           </el-tab-pane>
-          <el-tab-pane label="商品内容" name="4">商品内容</el-tab-pane>
+          <el-tab-pane label="商品内容" name="4">
+            <!-- 富文本编辑器-->
+            <quill-editor ref="myTextEditor"
+            v-model="addForm.goods_introduce">
+            </quill-editor>
+            <el-button type="primary" class="btnAdd" @click="add">添加商品</el-button>
+          </el-tab-pane>
         </el-tabs>
       </el-form>
     </el-card>
+
+    <el-dialog
+      title="图片预览"
+      :visible.sync="previewVisible"
+      width="50%"
+    >
+      <img :src="previewPath" class="previewImg">
+    </el-dialog>
   </div>
 </template>
 <script>
+  import  _  from 'lodash'
   export default{
      data(){
        return{
          activeIndex:'0',
          addForm:{
            goods_name:'',
-           goods_price:0,
-           goods_weight:'',
-           goods_number:0,
-           goods_cat:[]
+           goods_price:  0,
+           goods_weight: 0,
+           goods_number: 0,
+           goods_cat:[],
+           pics:[], //图片数组
+           goods_introduce:'', //商品的详情描述
+           attrs:[]
          }, //添加商品的表单数据对象
          addFormRules:{
              goods_name:[
@@ -132,8 +153,14 @@
            value:'cat_id',
            children:'children'
          },
-         manyTabData:[], //动态参数列表
-         onlyTabData:[],//静态参数列表
+         manyTableData:[], //动态参数列表
+         onlyTableData:[],//静态参数列表
+         /*图片上传组件的headers请求头*/
+         headerObj:{
+           Authorization: window.sessionStorage.getItem('token')
+         },
+         previewPath:'',
+         previewVisible:false, //图片预览对话框显示隐藏
        }
      },
     created(){
@@ -155,12 +182,14 @@
               return this.$message.error('获取商品分类数据失败')
         }
         this.cateList =res.data;
+
       },
       //级联选择器选中项变化
       handleChange(){
          if(this.addForm.goods_cat.length !==3){
            this.addForm.goods_cat= [];
          }
+        console.log(this.addForm)
       },
       beforeTabLeave(activeName,oldActiveName){
           if(oldActiveName === '0' && this.addForm.goods_cat.length !==3){
@@ -180,24 +209,77 @@
             res.data.forEach(item =>{
              item.attr_vals = item.attr_vals.length === 0 ?[]: item.attr_vals.split(' ')
             });
-            this.manyTabData =res.data
+            this.manyTableData =res.data
           }else if(this.activeIndex === '2'){
             const {data:res} = await this.$http.get(`categories/${this.cateId}/attributes`,{params:{sel:'only'}})
             if(res.meta.status !==200){
               return this.$message.error('获取静态参数列表失败!')
             }
-            this.onlyTabData =res.data
-            console.log(this.onlyTabData);
+            this.onlyTableData =res.data
           }
       },
       //处理图片预览效果
-      handlePreview(){
-
+      handlePreview(file){
+         this.previewPath = file.response.data.url;
+         this.previewVisible =true;
       },
       //出库移除图片的操作
-      handleRemove(){
+      handleRemove(file){
+        //1. 获取将要删除的图片的临时路径
+        //2.从pics数组中找到这个对象对应的索引值
+        //3.调用数组的splice方法，把图片信息对象，从pics数组中移除
+        const filePath = file.response.data.tmp_path;
+        const i= this.addForm.pics.findIndex(x =>{
+            x.pic === filePath
+        });
+        this.addForm.pics.splice(i,1);
+      },
+      //监听图片上传成功的事件
+      handleSuccess(response){
+        const picInfo = {pic:response.data.tmp_path};
+        //1.拼接得到一个图片信息对象
+        this.addForm.pics.push(picInfo);
+        //2.将图片信息对象push到pics数组中
+      },
+      //添加商品
+      add(){
+         this.$refs.addFormRef.validate(async valid=>{
+           if(!valid){
+             return this.$message.error('请填写必要的表单项')
+           }
+           //执行添加的业务逻辑
+           //lodash  cloneDeep();
+           const form = _.cloneDeep(this.addForm);
+           form.goods_cat = form.goods_cat.join(',');
+         //处理动态参数
+           this.manyTableData.forEach(item =>{
+               const newInfo ={
+                   attr_id:item.attr_id,
+                   attr_value: item.attr_vals.join(' ')
+               };
+               this.addForm.attrs.push(newInfo)
+           })
+           //处理静态属性
+           this.onlyTableData.forEach(item =>{
+               const newInfo ={
+                   attr_id:item.attr_id,
+                   attr_value:item.attr_vals
+               }
+               this.addForm.attrs.push(newInfo)
+           });
+           form.attrs = this.addForm.attrs;
+           //发起请求，添加商品
+           //商品的名称，必须是唯一的
+           const { data: res } = await this.$http.post('goods', form)
 
-      }
+           if (res.meta.status !== 201) {
+             return this.$message.error('添加商品失败！')
+           }
+
+           this.$message.success('添加商品成功！')
+           this.$router.push('/goods')
+      })
+  }
     }
   }
 </script>
@@ -205,4 +287,10 @@
 .el-checkbox{
   margin: 0 5px 0 0 !important;
 }
+  .previewImg{
+    width:100%;
+  }
+  .btnAdd{
+    margin-top:15px;
+  }
 </style>
