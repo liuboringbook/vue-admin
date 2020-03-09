@@ -6,7 +6,7 @@ import router from './router'
 import {
   Button,Input,Form,FormItem,Container,Header,Aside,Main,Menu,Submenu,MenuItemGroup,MenuItem,Breadcrumb,BreadcrumbItem,Card
 ,Row,Col,Table,TableColumn,Switch,Tooltip,Pagination,Dialog,Tag,Tree,Select,Option,Cascader,Alert,Tabs,TabPane,Steps,Step,CheckboxGroup,Checkbox,
-Upload} from 'element-ui';
+Upload,Timeline,TimelineItem} from 'element-ui';
 import {Message,MessageBox} from 'element-ui'
 //的导入字体图标
 import './assets/fonts/iconfont.css'
@@ -75,6 +75,8 @@ Vue.use(Step);
 Vue.use(CheckboxGroup);
 Vue.use(Checkbox);
 Vue.use(Upload);
+Vue.use(Timeline);
+Vue.use(TimelineItem);
 //将富文本编辑器，注册为全局可用的组件
 Vue.use(VueQuillEditor);
 Vue.config.productionTip = false;
