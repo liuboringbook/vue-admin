@@ -82,7 +82,7 @@
     <el-dialog
       title="物流进度"
       :visible.sync="progressVisible"
-      width="50%" 
+      width="50%"
     >
       <el-timeline>
         <el-timeline-item
